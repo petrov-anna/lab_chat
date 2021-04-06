@@ -9,7 +9,7 @@ d = "000"
 key = 567  # Ключ шифрования
 
 
-# Client Code
+# Код клиента, отправление информации и создание крипта
 def ReceiveData(sock):
     global d, key
     while True:
@@ -29,6 +29,7 @@ def ReceiveData(sock):
             pass
 
 
+# Запуск клиента
 def RunClient(serverIP):
     global d, key
     key = input("Введите ключ (567): ")
@@ -38,18 +39,18 @@ def RunClient(serverIP):
         key = int(key)
     host = socket.gethostbyname(socket.gethostname())
     port = random.randint(6000, 10000)
-    print('Client IP->' + str(host) + ' Port->' + str(port))
+    print('Клиент IP->' + str(host) + ' Порт->' + str(port))
     server = (str(serverIP), 5000)
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind((host, port))
 
-    name = input('Please write your name here: ')
+    name = input('Введите свое имя: ')
     if name == '':
-        name = 'Guest' + str(random.randint(1000, 9999))
-        print('Your name is ' + name)
+        name = 'Гость' + str(random.randint(1000, 9999))
+        print('Ваше имя ' + name)
     else:
-        print('Your name is', name)
-    print('Please enter some data: ')
+        print('Ваше имя', name)
+    print('Введите какую-нибудь информацию: ')
     s.sendto(name.encode('utf-8'), server)
     threading.Thread(target=ReceiveData, args=(s,)).start()
     while True:
@@ -73,25 +74,24 @@ def RunClient(serverIP):
     os._exit(1)
 
 
-# Client Code Ends Here
-
-# Server Code
+# Код сервера на отправку какой-либо информации
 def RecvData(sock, recvPackets):
     while True:
         data, addr = sock.recvfrom(1024)
         recvPackets.put((data, addr))
 
 
+# Запуск сервера
 def RunServer():
     host = socket.gethostbyname(socket.gethostname())
     port = 5000
-    print('Server hosting on IP -> ' + str(host))
+    print('Хостинг сервера по IP-адресу -> ' + str(host))
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind((host, port))
     clients = set()
     recvPackets = queue.Queue()
 
-    print('Server Running...')
+    print('Сервер запускается...')
 
     threading.Thread(target=RecvData, args=(s, recvPackets)).start()
 
@@ -118,14 +118,11 @@ def RunServer():
     s.close()
 
 
-# Server Code Ends Here
-
-
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         RunServer()
     elif len(sys.argv) == 2:
         RunClient(sys.argv[1])
     else:
-        print('Run Server:-> python Chat.py')
-        print('Run Client:-> python Chat.py <ServerIP>')
+        print('Запуск сервера:-> python Chat.py')
+        print('Запуск клиента:-> python Chat.py <ServerIP>')
